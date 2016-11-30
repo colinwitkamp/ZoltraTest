@@ -4,8 +4,16 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+
+
+var Promise = require('bluebird');
+var mongoose = require('mongoose');
 var admin = require('firebase-admin'); // Firebase Admin SDK
 var serviceAccount = require('./serviceAccountKey.json'); // Service Account
+
+// promisify mongoose
+Promise.promisifyAll(mongoose);
+mongoose.Promise = global.Promise;
 
 // Initialize Firebase SDK as an Admin
 admin.initializeApp({

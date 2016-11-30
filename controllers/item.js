@@ -30,9 +30,10 @@ function addChangeItem(snapshot) {
   	  var changedItem = Object.assign(prevItem, item);
   	  changedItem.save(function(errChangedItem, result) {
   	  	if (errChangedItem) {
-  	  	  console.log('Unable to changed item: ' + key);
+  	  	  console.log('Unable to change item: ' + key);
+  	  	  console.log(errChangedItem);
   	  	} else {
-  	  	  console.log('Successfully change item: ' + key);	
+  	  	  console.log('Successfully changed item: ' + key);	
   	  	}
   	  });	
   	} else { // item was not saved in MongoDB, so create a new item
@@ -40,6 +41,7 @@ function addChangeItem(snapshot) {
   	  newItem.save(function(errNewItem, result) {
   	  	if (errNewItem) {
   	  	  console.log('Unable to create item: ' + key);
+  	  	  console.log(errNewItem);
   	  	} else {
   	  	  console.log('Successfully created item: ' + key);	
   	  	}

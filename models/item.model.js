@@ -1,7 +1,13 @@
 var mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 var ItemSchema = mongoose.Schema({
 
-	id: String,
+	id: {
+	  type: String,
+	  unique: true,
+	  index: true,
+	  required: true
+	},
 	category: Number,
 	description: String,
 	difficulty: Number,
@@ -10,7 +16,7 @@ var ItemSchema = mongoose.Schema({
 	rating: Object,
 	requirements: Object,
 	skills: [String],
-    steps: [String],
+    steps: [Schema.Types.Mixed],
     timestamp: Number,
     timestampDesc: Number,
     title: String,
