@@ -138,10 +138,12 @@ function removeUser() {
 }
 
 function indexUser() {
-  var userRef = db.ref('users');
-  userRef.on('child_added', addChangeUser);
-  userRef.on('child_changed', addChangeUser);
-  userRef.on('child_removed', removeUser); 
+  User.remove({}, function(err, result) {
+	var userRef = db.ref('users');
+	userRef.on('child_added', addChangeUser);
+  	userRef.on('child_changed', addChangeUser);
+  	userRef.on('child_removed', removeUser); 
+  });
 }
 
 module.exports = {
