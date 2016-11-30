@@ -18,11 +18,13 @@ function getItem(req, res, next) {
 function addChangeItem(snapshot) {
   var key = snapshot.key; // item id **caution** _id is the mongodb id
   var item = snapshot.val();
+
   if (item) {
   	item.id = key;
   } else {
   	console.log('Empty Item! : ' + key);
   }
+  
   Item.findOne({
   	id: key
   }, function(err, prevItem) {

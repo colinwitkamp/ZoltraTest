@@ -1,9 +1,12 @@
 
+const mongoose = require('mongoose');
 var admin = require('firebase-admin'); // Firebase Admin SDK
 var db = admin.database();
 var User = require('../models/user.model');
 const async = require('asyncawait/async');
 const await = require('asyncawait/await');
+
+const fireToMongo = require('../lib/fireMongo');
 
 function getUser(req, res, next) {
 
@@ -43,44 +46,15 @@ const mongooseUser = async (function (user, callback) {
   var dicFollowers = {};
 
   if (followers) {
+  	// console.log(followers);
 	var aryFollowerID = [];
 	// Collect followers user ids to aryFollowerID
-	for (var key in followers) {
-	  aryFollowerID.push(followers[key].userId);
-	}
-	// console.log(aryFollowerID);
-
-	// Find user ids with id of aryFollowerID
-	var followerUsers = await(User.find({
-	  id: {
-	  	$in: aryFollowerID
-	  }
-	}));
-
-	// Not found
-	if (!followerUsers) {
-
-	  followerUsers = [];
-	}
-
-	// make dic for searching easily
-	for (var i in followerUsers) {
-	  var _user = followerUsers[i];
-	  dicFollowers[_user.id] = _user;
-	}
-
-	// iterate aryFollowerID
 	var followers_ref = [];
-
-	for (var i in aryFollowerID) {
-	  var id = aryFollowerID[i];
-	  // console.log('id' + id);
-	  var prevUser = dicFollowers[id];
-	  if (prevUser) { // already indexed the user
-	  	followers_ref.push(prevUser._id); // append to the array of followers
-	  } else { // No indexed User found
-	  	
-	  }
+	for (var key in followers) {
+	  var id = followers[key].userId;
+	  // console.log('Hash Input:' + id);
+	  followers_ref.push(mongoose.Types.ObjectId(fireToMongo(id)));
+	  aryFollowerID.push(id);
 	}
 	user.followers_ref = followers_ref;
   }
@@ -89,44 +63,17 @@ const mongooseUser = async (function (user, callback) {
 
   const following = user.following;
   if (following) {
+  	console.log(following);
 	var aryFollowingID = [];
 	// Collect following user ids to aryFollowingID
-	for (var key in following) {
-	  aryFollowingID.push(following[key].userId);
-	}
-	// console.log(aryFollowerID);
-
-	// Find user ids with id of aryFollowerID
-	var followingUsers = await(User.find({
-	  id: {
-	  	$in: aryFollowingID
-	  }
-	}));
-
-	// Not found
-	if (!followingUsers) {
-	  followingUsers = [];
-	}
-
-	// make dic for searching easily - shares dicFollowers
-	for (var i in followingUsers) {
-	  var _user = followingUsers[i];
-	  dicFollowers[_user.id] = _user;
-	}
-
-	// iterate aryFollowingID
 	var following_ref = [];
-	for (var i in aryFollowingID) {
-	  var id = aryFollowingID[id];
-	  // console.log('id' + id);
-	  var prevUser = dicFollowers[id];
-	  if (prevUser) { // already indexed the user
-	  	following_ref.push(prevUser._id); // append to the array of following
-	  } else { // No indexed User found
-	  	
-	  }
+	for (var key in following) {
+	  const id = following[key].userId;
+	  console.log('Hash Input:' + id);
+	  following_ref.push(mongoose.Types.ObjectId(fireToMongo(id)));
+	  aryFollowingID.push(id);
 	}
-	user.following_ref = followers_ref;
+	user.following_ref = following_ref;
   }
 
   user.followers = aryFollowerID;
@@ -134,7 +81,6 @@ const mongooseUser = async (function (user, callback) {
   // Finally Save User
   user.save(callback);  	
 });
-
 
 function addChangeUser(snapshot) {
   var key = snapshot.key; // user id **caution** _id is the mongodb id
@@ -165,6 +111,8 @@ function addChangeUser(snapshot) {
   	  });	
   	} else { // user was not saved in MongoDB, so create a new user
   	  var newUser = new User(user);
+  	  // Unique _id for key
+  	  newUser._id = mongoose.Types.ObjectId(fireToMongo(key));
   	  mongooseUser(newUser, function(errNewUser, result) {
   	  	if (errNewUser) {
   	  	  console.log('Unable to create user: ' + key);
