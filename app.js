@@ -4,11 +4,24 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var admin = require('firebase-admin'); // Firebase Admin SDK
+var serviceAccount = require('./serviceAccountKey.json'); // Service Account
+
+// Initialize Firebase SDK as an Admin
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: 'testzoltura.firebaseio.com'
+});
 
 var index = require('./routes/index');
-var users = require('./routes/users');
+
+var config = require('./config');
 
 var app = express();
+
+var itemCtrl = require('./controllers/item');
+var userCtrl = require('./controllers/user');
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,8 +35,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Express Routing
 app.use('/', index);
-app.use('/users', users);
+
+// Start to Index Firebase Data
+itemCtrl.indexItem();
+userCtrl.indexUser();
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
