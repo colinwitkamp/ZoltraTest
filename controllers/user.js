@@ -19,6 +19,7 @@ function getUser(req, res, next) {
   })
   .populate('followers_ref')
   .populate('following_ref')
+  .populate('collect_ref')
   .exec(function(err, user) {
 
   	if (err) {
@@ -47,14 +48,12 @@ const mongooseUser = async (function (user, callback) {
 
   if (followers) {
   	// console.log(followers);
-	var aryFollowerID = [];
 	// Collect followers user ids to aryFollowerID
 	var followers_ref = [];
 	for (var key in followers) {
 	  var id = followers[key].userId;
 	  // console.log('Hash Input:' + id);
 	  followers_ref.push(mongoose.Types.ObjectId(fireToMongo(id)));
-	  aryFollowerID.push(id);
 	}
 	user.followers_ref = followers_ref;
   }
@@ -64,20 +63,30 @@ const mongooseUser = async (function (user, callback) {
   const following = user.following;
   if (following) {
   	console.log(following);
-	var aryFollowingID = [];
 	// Collect following user ids to aryFollowingID
 	var following_ref = [];
 	for (var key in following) {
 	  const id = following[key].userId;
 	  console.log('Hash Input:' + id);
 	  following_ref.push(mongoose.Types.ObjectId(fireToMongo(id)));
-	  aryFollowingID.push(id);
 	}
 	user.following_ref = following_ref;
   }
 
-  user.followers = aryFollowerID;
-  user.following = aryFollowingID;
+
+  // index collect
+  const collect = user.collect;
+
+  if (collect) {
+  	var aryItemID = [];
+  	var collect_ref = [];
+  	for (var key in collect) {
+  	  const id = collect[key].guideId;
+  	  collect_ref.push(mongoose.Types.ObjectId(fireToMongo(id)));
+  	}
+  	user.collect_ref = collect_ref;
+  }
+
   // Finally Save User
   user.save(callback);  	
 });

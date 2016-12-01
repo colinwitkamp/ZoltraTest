@@ -1,7 +1,9 @@
 
+const mongoose = require('mongoose');
 var admin = require('firebase-admin'); // Firebase Admin SDK
 var db = admin.database();
 var Item = require('../models/item.model');
+const fireToMongo = require('../lib/fireMongo');
 
 function getItems(req, res, next) {
   var itemRef = db.ref('items');
@@ -24,7 +26,7 @@ function addChangeItem(snapshot) {
   } else {
   	console.log('Empty Item! : ' + key);
   }
-  
+
   Item.findOne({
   	id: key
   }, function(err, prevItem) {
@@ -40,6 +42,7 @@ function addChangeItem(snapshot) {
   	  });	
   	} else { // item was not saved in MongoDB, so create a new item
   	  var newItem = new Item(item);
+  	  newItem._id = mongoose.Types.ObjectId(fireToMongo(key));
   	  newItem.save(function(errNewItem, result) {
   	  	if (errNewItem) {
   	  	  console.log('Unable to create item: ' + key);
@@ -66,10 +69,12 @@ function removeItem() {
 }
 
 function indexItem() {
-  var itemRef = db.ref('items');
-  itemRef.on('child_added', addChangeItem);
-  itemRef.on('child_changed', addChangeItem);
-  itemRef.on('child_removed', removeItem); 
+  Item.remove({}, function(err, result) {
+	var itemRef = db.ref('items');
+    itemRef.on('child_added', addChangeItem);
+    itemRef.on('child_changed', addChangeItem);
+    itemRef.on('child_removed', removeItem); 
+  });
 }
 
 
