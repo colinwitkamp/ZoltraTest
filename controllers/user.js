@@ -20,6 +20,7 @@ function getUser(req, res, next) {
   .populate('followers_ref')
   .populate('following_ref')
   .populate('collect_ref')
+  .populate('guides_ref')
   .exec(function(err, user) {
 
   	if (err) {
@@ -87,12 +88,35 @@ const mongooseUser = async (function (user, callback) {
   	user.collect_ref = collect_ref;
   }
 
+  // index guides
+    // get user guides
+  var guides_ref = [];
+  const userGuidesSnapshot = await( 
+  	db.ref('items')
+    .orderByChild('userId')
+    .equalTo(user.id)
+    .once('value'));
+  if (userGuidesSnapshot) {
+	const userGuides = userGuidesSnapshot.val();
+	// console.log('userGuides:');
+	// console.log(userGuides);
+	if (userGuides) {  	
+	  for (var guide_key in userGuides) {
+		guides_ref.push(mongoose.Types.ObjectId(fireToMongo(guide_key)));
+	  }
+	}		
+  }
+  user.guides_ref = guides_ref;
+
   // Finally Save User
   user.save(callback);  	
 });
 
-function addChangeUser(snapshot) {
+const addChangeUser = async(function(snapshot) {
+
+
   var key = snapshot.key; // user id **caution** _id is the mongodb id
+     
   console.log(key);
   var user = snapshot.val();
   if (user) {
@@ -131,7 +155,7 @@ function addChangeUser(snapshot) {
   	  });
   	}
   });
-}
+});
 
 function removeUser() {
   var key = snapshot.key; // user id **caution** _id is the mongodb id

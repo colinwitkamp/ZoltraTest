@@ -38,6 +38,12 @@ var UserSchema = mongoose.Schema({
   	  type: Schema.Types.ObjectId,
   	  ref: 'Item'
   	}
+  ],
+  guides_ref: [
+  	{
+  	  type: Schema.Types.ObjectId,
+  	  ref: 'Item'
+  	}
   ]
 });
 
