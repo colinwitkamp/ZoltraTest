@@ -129,7 +129,9 @@ function getItems(req, res, next) {
 	}
 
 	if (key && search_string) {
-		query[key] = new RegExp('^'+search_string+'$', "i");
+		query[key] = {
+			$regex: new RegExp('^' + search_string + '$', "i")
+		};
 	} else if (search_string) {
 		query['$text'] = {
 			$search: search_string
