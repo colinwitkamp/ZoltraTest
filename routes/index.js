@@ -1,18 +1,19 @@
 var express = require('express');
 var router = express.Router();
 var itemCtrl = require('../controllers/item');
-var collectionCtrl = require('../controllers/collection');
+var successCtrl = require('../controllers/success');
 var userCtrl = require('../controllers/user');
+var middleWare = require('../controllers/middleware');
 
+router.route('/api').all(middleWare);
 // - api/GetItems (GET)
-router.get('/api/GetItems', itemCtrl.getItems);
+router.get('/api/item', itemCtrl.getItems);
 
-// - api/GetItem (GET)
-router.get('/api/GetItem', itemCtrl.getItem);
-
+// - api /GetItem (GET)
+router.route('/api/item/:itemId').get(itemCtrl.getItem);
 
 // - api/GetCollection
-router.get('/api/GetCollection', collectionCtrl.getCollections);
+// router.get('/api/GetCollection', successCtrl.getCollections);
 
 // - api/GetUser
 router.route('/api/user/:userId').get( userCtrl.getUser);

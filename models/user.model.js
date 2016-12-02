@@ -53,7 +53,7 @@ UserSchema.index({
 });
 
 UserSchema.set('toJSON', {
-  transform: (doc, ret) => {
+  transform: function(doc, ret) {
   	if (!doc.populated('following_ref')) {
   	  delete ret.following_ref;
   	}

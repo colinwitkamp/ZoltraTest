@@ -29,6 +29,7 @@ var app = express();
 
 var itemCtrl = require('./controllers/item');
 var userCtrl = require('./controllers/user');
+var successCtrl = require('./controllers/success');
 
 
 // view engine setup
@@ -49,6 +50,7 @@ app.use('/', index);
 // Start to Index Firebase Data
 itemCtrl.indexItem();
 userCtrl.indexUser();
+successCtrl.indexSucess();
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
