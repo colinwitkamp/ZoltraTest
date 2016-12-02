@@ -129,8 +129,12 @@ function getItems(req, res, next) {
 	}
 
 	if (key && search_string) {
+		search_string = search_string.toLowerCase();
+		search_string = search_string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+		var regExp = '(.*' + search_string.replace(' ', '.*|.*') + '.*)';
+
 		query[key] = {
-			$regex: new RegExp('^' + search_string + '$', "i")
+			$regex: regExp
 		};
 	} else if (search_string) {
 		query['$text'] = {
